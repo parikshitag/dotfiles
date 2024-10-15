@@ -9,9 +9,10 @@
 
 # dotfiles directory
 dotfiledir="${HOME}/dotfiles"
+backupdotfiledir="${dotfiledir}/backup/$(date +%Y%m%d_%H%M%S)"
 
 # list of files/folders to symlink in ${homedir}
-files=(zshrc zprofile zprompt bashrc bash_profile bash_prompt aliases private)
+files=(zshrc zprofile zprompt bashrc bash_profile bash_prompt aliases )
 
 # change to the dotfiles directory
 echo "Changing to the ${dotfiledir} directory"
@@ -19,15 +20,17 @@ cd "${dotfiledir}" || exit
 
 # create symlinks (will overwrite old dotfiles)
 for file in "${files[@]}"; do
+    echo "Backing up $file in $backupdotfiledir"
+    mkdir -p "${backupdotfiledir}" && cp "${HOME}/.${file}" "${backupdotfiledir}/.${file}"
     echo "Creating symlink to $file in home directory."
     ln -sf "${dotfiledir}/.${file}" "${HOME}/.${file}"
 done
 
 # Run the MacOS Script
-./macOS.sh
+#./macOS.sh
 
 # Run the Homebrew Script
-./brew.sh
+#./brew.sh
 
 # Run VS Code Script
 ./vscode.sh
