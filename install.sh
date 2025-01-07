@@ -30,7 +30,7 @@ done
 #./macOS.sh
 
 # Run the Homebrew Script
-#./brew.sh
+./brew.sh
 
 # Run VS Code Script
 ./vscode.sh
