@@ -85,3 +85,51 @@ This project is licensed under the MIT License - see the [LICENSE-MIT.txt](LICEN
 
 -  I originally forked this from [Mathias Bynens' dotfiles](https://github.com/mathiasbynens/dotfiles)
 -  Thanks to all the open-source projects used in this setup.
+-  [Alex-D dotfiles](https://github.com/Alex-D/dotfiles)
+
+Setup WSL 2
+-----------
+
+- Enable WSL 2 and update the linux kernel ([Source](https://docs.microsoft.com/en-us/windows/wsl/install-win10))
+
+```powershell
+# In PowerShell as Administrator
+
+# Enable WSL and VirtualMachinePlatform features
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+
+# Download and install the Linux kernel update package
+$wslUpdateInstallerUrl = "https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi"
+$downloadFolderPath = (New-Object -ComObject Shell.Application).NameSpace('shell:Downloads').Self.Path
+$wslUpdateInstallerFilePath = "$downloadFolderPath/wsl_update_x64.msi"
+$wc = New-Object System.Net.WebClient
+$wc.DownloadFile($wslUpdateInstallerUrl, $wslUpdateInstallerFilePath)
+Start-Process -Filepath "$wslUpdateInstallerFilePath"
+
+# Set WSL default version to 2
+wsl --set-default-version 2
+```
+
+- [Install Ubuntu from Microsoft Store](https://www.microsoft.com/fr-fr/p/ubuntu/9nblggh4msv6)
+
+GPG key
+-------
+
+If you already have a GPG key, restore it. If you did not have one, you can create one.
+
+### Restore
+
+- On old system, create a backup of a GPG key
+  - `gpg --list-secret-keys`
+  - `gpg --export-secret-keys {{KEY_ID}} > /tmp/private.key`
+- On new system, import the key:
+  - `gpg --import /tmp/private.key`
+- Delete the `/tmp/private.key` on both side
+
+### Create
+
+- `gpg --full-generate-key`
+
+[Read GitHub documentation about generating a new GPG key for more details](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-gpg-key).
+

@@ -7,5 +7,4 @@ for file in ~/.{bash_prompt,aliases,private}; do
 done;
 unset file;
  
-GPG_TTY=$(tty)
-export GPG_TTY
+export GPG_TTY=$(tty)
