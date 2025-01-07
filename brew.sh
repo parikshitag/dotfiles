@@ -4,13 +4,24 @@
 if ! command -v brew &>/dev/null; then
     echo "Homebrew not installed. Installing Homebrew."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-    # Attempt to set up Homebrew PATH automatically for this session
-    if [ -x "/opt/homebrew/bin/brew" ]; then
-        # For Apple Silicon Macs
-        echo "Configuring Homebrew in PATH for Apple Silicon Mac..."
-        export PATH="/opt/homebrew/bin:$PATH"
-    fi
+    case `uname` in
+    Linux)
+ 	## add brew home to PATH in linux/WSL
+    	brew_home=/home/linuxbrew/.linuxbrew
+    	if [ -d "${brew_home}" ]; then
+      	    export PATH=${brew_home}/bin:$PATH
+    	fi	   
+    ;;
+    Darwin)
+   	## Do macOS thing...
+    	# Attempt to set up Homebrew PATH automatically for this session
+    	if [ -x "/opt/homebrew/bin/brew" ]; then
+       	    # For Apple Silicon Macs
+            echo "Configuring Homebrew in PATH for Apple Silicon Mac..."
+            export PATH="/opt/homebrew/bin:$PATH"
+	fi
+   ;;
+   esac
 else
     echo "Homebrew is already installed."
 fi
@@ -100,17 +111,17 @@ $(brew --prefix)/bin/npm install --global prettier
 apps=(
     "google-chrome"
     "firefox"
-    "brave-browser"
+#    "brave-browser"
     "sublime-text"
     "visual-studio-code"
-    "spotify"
-    "discord"
-    "google-drive"
-    "gimp"
+#    "spotify"
+#    "discord"
+#    "google-drive"
+#    "gimp"
     "vlc"
-    "rectangle"
+#    "rectangle"
     "postman"
-    "keyboardcleantool"
+#    "keyboardcleantool"
 )
 
 # Loop over the array to install each application.
