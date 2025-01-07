@@ -53,6 +53,9 @@ alias clean="osascript -e 'tell application \"Finder\" to empty the trash'; rm -
 # Virtual Environments
 alias wipe_env='rm -rf ~/venvs/tutorial; python3 -m venv ~/venvs/tutorial'
 alias tut_env='source ~/venvs/tutorial/bin/activate'
+alias dss_env='source ~/venvs/dss/bin/activate'
+alias adw_env='source ~/venvs/adw/bin/activate'
+alias sc_env='source ~/venvs/servicecreator/bin/activate'
 
 # DSS AWS Environment
 alias dfdev="aws sso login --profile dev-df-admin && export AWS_PROFILE=dev-df-admin && export AWS_REGION=eu-west-1"
