@@ -38,6 +38,69 @@ alias update_brew='brew update; brew upgrade; brew upgrade --cask; brew cleanup'
 alias show="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
 alias hide="defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder"
 
+alias k='kubectl'
+alias kge='kubectl get events --sort-by="{.lastTimestamp}"'
+alias kca='f(){ kubectl "$@" --all-namespaces;  unset -f f; }; f'
+alias kaf='kubectl apply -f'
+alias keti='kubectl exec -ti'
+alias kcuc='kubectl config use-context'
+alias kcsc='kubectl config set-context'
+alias kcdc='kubectl config delete-context'
+alias kccc='kubectl config current-context'
+alias kcgc='kubectl config get-contexts'
+alias kdel='kubectl delete'
+alias kdelf='kubectl delete -f'
+alias kgp='kubectl get pods'
+alias kgpw='kgp --watch'
+alias kgpwide='kgp -o wide'
+alias kep='kubectl edit pods'
+alias kdp='kubectl describe pods'
+alias kdelp='kubectl delete pods'
+alias kgpl='kgp -l'
+alias kgs='kubectl get svc'
+alias kgsw='kgs --watch'
+alias kgswide='kgs -o wide'
+alias kes='kubectl edit svc'
+alias kds='kubectl describe svc'
+alias kdels='kubectl delete svc'
+alias kgi='kubectl get ingress'
+alias kei='kubectl edit ingress'
+alias kdi='kubectl describe ingress'
+alias kdeli='kubectl delete ingress'
+alias kgns='kubectl get namespaces'
+alias kens='kubectl edit namespace'
+alias kdns='kubectl describe namespace'
+alias kdelns='kubectl delete namespace'
+alias kcn='kubectl config set-context $(kubectl config current-context) --namespace'
+alias kgcm='kubectl get configmaps'
+alias kecm='kubectl edit configmap'
+alias kdcm='kubectl describe configmap'
+alias kdelcm='kubectl delete configmap'
+alias kgsec='kubectl get secret'
+alias kdsec='kubectl describe secret'
+alias kdelsec='kubectl delete secret'
+alias kgd='kubectl get deployment'
+alias kgdw='kgd --watch'
+alias kgdwide='kgd -o wide'
+alias ked='kubectl edit deployment'
+alias kdd='kubectl describe deployment'
+alias kdeld='kubectl delete deployment'
+alias ksd='kubectl scale deployment'
+alias krsd='kubectl rollout status deployment'
+alias kgrs='kubectl get rs'
+alias krh='kubectl rollout history'
+alias kru='kubectl rollout undo'
+alias kpf="kubectl port-forward"
+alias kga='kubectl get all'
+alias kgaa='kubectl get all --all-namespaces'
+alias kl='kubectl logs'
+alias klf='kubectl logs -f'
+alias kcp='kubectl cp'
+alias kgno='kubectl get nodes'
+alias keno='kubectl edit node'
+alias kdno='kubectl describe node'
+alias kdelno='kubectl delete node'
+
 # To prep before screencasts
 alias tut_mode='defaults write com.apple.dock autohide -bool true && killall Dock;
                defaults write com.apple.finder CreateDesktop -bool false && killall Finder;
@@ -50,16 +113,55 @@ alias reg_mode='defaults write com.apple.dock autohide -bool false && killall Do
 
 alias clean="osascript -e 'tell application \"Finder\" to empty the trash' 2>/dev/null; rm -rf ~/Downloads/*"
 
+
 # Virtual Environments
 alias wipe_env='rm -rf ~/venvs/tutorial; python3 -m venv ~/venvs/tutorial'
+alias venv='source .venv/bin/activate'
+alias dbtenv='source ~/venvs/dbtenv/bin/activate'
 alias tut_env='source ~/venvs/tutorial/bin/activate'
 alias dss_env='source ~/venvs/dss/bin/activate'
 alias adw_env='source ~/venvs/adw/bin/activate'
 alias sc_env='source ~/venvs/servicecreator/bin/activate'
+alias castor_env='source ~/venvs/castor/bin/activate'
+alias dafenv='source ~/venvs/daf/bin/activate'
+
+# local server aliases
+alias nas="ssh -p 45000 'parikshit_admin@192.168.1.2'"
+
+# tmux sessions
+t() {
+  # Create session in background if it doesn't exist
+  tmux new-session -d -s "$1" 2>/dev/null
+  
+  if [ -n "$TMUX" ]; then
+    # If inside tmux: switch to it
+    tmux switch-client -t "$1"
+  else
+    # If outside tmux: attach to it
+    tmux attach-session -t "$1"
+  fi
+}
 
 # DSS AWS Environment
 alias dfdev="aws sso login --profile dev-df-admin && export AWS_PROFILE=dev-df-admin && export AWS_REGION=eu-west-1"
+alias dfuat="aws sso login --profile uat-df-admin && export AWS_PROFILE=uat-df-admin && export AWS_REGION=eu-west-1"
 alias dfprod="aws sso login --profile prod-df-admin && export AWS_PROFILE=prod-df-admin && export AWS_REGION=eu-west-1"
 alias dfcicd="aws sso login --profile cicd && export AWS_PROFILE=cicd && export AWS_REGION=eu-west-1"
 alias lsrepo="aws codecommit list-repositories --region eu-west-1 --profile cicd | jq -r '.repositories[] | .repositoryName'"
+
+alias eksdev="aws eks --region eu-west-1 update-kubeconfig --name dev-datafactory"
+alias eksuat="aws eks --region eu-west-1 update-kubeconfig --name uat-datafactory"
+alias eksprod="aws eks --region eu-west-1 update-kubeconfig --name prod-datafactory"
+alias pfairflow="kubens airflow && kubectl port-forward services/dev-api-server 5000:8080"
+alias pfuatairflow="kubens airflow && kubectl port-forward services/uat-api-server 5000:8080"
+alias pfprodairflow="kubens airflow && kubectl port-forward services/prod-api-server 5000:8080"
+alias pfredash="kubens redash && kubectl port-forward services/redash 5100:80"
+#alias pfdev="aws ssm start-session --target i-065b5c527a1890cbe --document-name AWS-StartPortForwardingSession --parameters portNumber='5000',localPortNumber='5000'"
 alias pgdev="aws ssm start-session --target i-065b5c527a1890cbe --document-name AWS-StartPortForwardingSessionToRemoteHost  --parameters host='rds-dev-datafactory-instance-1.ciyx0wg9ft4f.eu-west-1.rds.amazonaws.com',portNumber='5432',localPortNumber='5432'"
+alias pgall="dss_env && dfdev && pgdev &"
+alias rsdev="aws ssm start-session --target i-065b5c527a1890cbe --document-name AWS-StartPortForwardingSessionToRemoteHost  --parameters host='rs-dev-datafactory-001.cymikxohtjhl.eu-west-1.redshift.amazonaws.com',portNumber='5439',localPortNumber='5439'"
+alias rsprod="aws ssm start-session --target i-007c3baf00fcdc433 --document-name AWS-StartPortForwardingSessionToRemoteHost  --parameters host='rs-prod-datafactory-001.cn7jv4zmgtoa.eu-west-1.redshift.amazonaws.com',portNumber='5439',localPortNumber='5439'"
+
+alias bsdev="aws ssm start-session --target=i-065b5c527a1890cbe --document-name AWS-StartInteractiveCommand --parameters command='bash -l'"
+alias bsuat="aws ssm start-session --target=i-042d4e5d9c129220d --document-name AWS-StartInteractiveCommand --parameters command='bash -l'"
+alias bsprod="aws ssm start-session --target=i-007c3baf00fcdc433 --document-name AWS-StartInteractiveCommand --parameters command='bash -l'"

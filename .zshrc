@@ -8,3 +8,4 @@ for file in ~/.{zprompt,aliases,private}; do
 done;
 unset file;
 
+eval "$(starship init zsh)"

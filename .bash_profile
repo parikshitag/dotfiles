@@ -8,3 +8,4 @@ if [ -x "/opt/homebrew/bin/brew" ]; then
     # For Apple Silicon Macs
     export PATH="/opt/homebrew/bin:$PATH"
 fi
+eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
