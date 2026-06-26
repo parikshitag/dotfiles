@@ -363,36 +363,47 @@ eks() {
 # Unalias old port-forward aliases (from previous version)
 unalias pfairflow 2>/dev/null
 
-# Airflow — local port 5000 → service port 8080
+# Airflow — environment-specific ports (dev:5000, uat:5001, prod:5002)
 # Auto-updates EKS context based on active AWS_PROFILE. Just run dfdev/dfuat/dfprod first.
 pfairflow() {
     # Auto-update EKS context (includes AWS_PROFILE check)
     eks || return 1
 
     local svc
+    local port
 
     case "$AWS_PROFILE" in
-        dev-df-admin)  svc="dev-api-server"  ;;
-        uat-df-admin)  svc="uat-api-server"  ;;
-        prod-df-admin) svc="prod-api-server" ;;
+        dev-df-admin)  svc="dev-api-server";  port="5000" ;;
+        uat-df-admin)  svc="uat-api-server";  port="5001" ;;
+        prod-df-admin) svc="prod-api-server"; port="5002" ;;
     esac
 
-    echo "→ Port-forwarding to $svc..."
-    kubens airflow && kubectl port-forward "services/$svc" 5000:8080
+    echo "→ Port-forwarding $svc to localhost:$port..."
+    kubens airflow && kubectl port-forward "services/$svc" "$port:8080"
 }
 
-# Redash — auto-updates EKS context before port-forward
+# Redash — environment-specific ports (dev:5100, uat:5101, prod:5102)
 pfredash() {
     # Auto-update EKS context (includes AWS_PROFILE check)
     eks || return 1
 
-    echo "→ Port-forwarding to Redash..."
-    kubens redash && kubectl port-forward services/redash 5100:80
+    local port
+
+    case "$AWS_PROFILE" in
+        dev-df-admin)  port="5100" ;;
+        uat-df-admin)  port="5101" ;;
+        prod-df-admin) port="5102" ;;
+    esac
+
+    echo "→ Port-forwarding Redash to localhost:$port..."
+    kubens redash && kubectl port-forward services/redash "$port:80"
 }
 
 # Port-forward checks
-alias pgcheck='lsof -i :5432'
-alias rscheck='lsof -i :5439'
+alias pgcheck='lsof -i :5432 -i :5433 -i :5434'
+alias rscheck='lsof -i :5439 -i :5440 -i :5441'
+alias afcheck='lsof -i :5000 -i :5001 -i :5002'
+alias redashcheck='lsof -i :5100 -i :5101 -i :5102'
 
 # =============================================================================
 # DSS SSM TUNNELS — BASTION / RDS / REDSHIFT
@@ -415,7 +426,7 @@ bs() {
     aws ssm start-session --target="$instance" --document-name AWS-StartInteractiveCommand --parameters command='bash -l'
 }
 
-# RDS (Postgres) tunnel via bastion → localhost:5432
+# RDS (Postgres) tunnel via bastion — environment-specific ports (dev:5432, uat:5433, prod:5434)
 pgfwd() {
     if [[ -z "$AWS_PROFILE" ]]; then
         echo "⚠ AWS_PROFILE is not set. Run 'dfdev/dfuat/dfprod' first."
@@ -424,20 +435,27 @@ pgfwd() {
 
     local instance=$(_df_bastion_instance)
     local endpoint=$(_df_rds_endpoint)
+    local port
+
+    case "$AWS_PROFILE" in
+        dev-df-admin)  port="5432" ;;
+        uat-df-admin)  port="5433" ;;
+        prod-df-admin) port="5434" ;;
+    esac
 
     if [[ -z "$instance" || -z "$endpoint" ]]; then
         echo "⚠ No RDS configuration for AWS_PROFILE='$AWS_PROFILE'."
         return 1
     fi
 
-    echo "→ Port-forwarding RDS via bastion..."
+    echo "→ Port-forwarding RDS to localhost:$port..."
     aws ssm start-session \
         --target "$instance" \
         --document-name AWS-StartPortForwardingSessionToRemoteHost \
-        --parameters host="$endpoint",portNumber='5432',localPortNumber='5432'
+        --parameters host="$endpoint",portNumber='5432',localPortNumber="$port"
 }
 
-# Redshift tunnel via bastion → localhost:5439
+# Redshift tunnel via bastion — environment-specific ports (dev:5439, uat:5440, prod:5441)
 rsfwd() {
     if [[ -z "$AWS_PROFILE" ]]; then
         echo "⚠ AWS_PROFILE is not set. Run 'dfdev/dfuat/dfprod' first."
@@ -446,16 +464,23 @@ rsfwd() {
 
     local instance=$(_df_bastion_instance)
     local endpoint=$(_df_redshift_endpoint)
+    local port
+
+    case "$AWS_PROFILE" in
+        dev-df-admin)  port="5439" ;;
+        uat-df-admin)  port="5440" ;;
+        prod-df-admin) port="5441" ;;
+    esac
 
     if [[ -z "$instance" || -z "$endpoint" ]]; then
         echo "⚠ No Redshift configuration for AWS_PROFILE='$AWS_PROFILE'."
         return 1
     fi
 
-    echo "→ Port-forwarding Redshift via bastion..."
+    echo "→ Port-forwarding Redshift to localhost:$port..."
     aws ssm start-session \
         --target "$instance" \
         --document-name AWS-StartPortForwardingSessionToRemoteHost \
-        --parameters host="$endpoint",portNumber='5439',localPortNumber='5439'
+        --parameters host="$endpoint",portNumber='5439',localPortNumber="$port"
 }
 

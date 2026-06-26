@@ -15,4 +15,4 @@ Thumbs.db
 
 # Private Information
 .private
-.gitconfig
+.gitconfig.zshrc.backup

@@ -1,0 +1,5 @@
+#!/bin/bash
+# WSL Chrome launcher for AWS SSO
+# Opens links in Windows Chrome Profile 2
+
+/mnt/c/Program\ Files/Google/Chrome/Application/chrome.exe --profile-directory="Profile 2" "$@" &
