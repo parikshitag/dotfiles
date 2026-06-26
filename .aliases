@@ -1,84 +1,166 @@
-# Shortcuts
+# =============================================================================
+# SHELL SHORTCUTS
+# =============================================================================
+
 alias ch='history | grep "git commit"'
 alias hg='history | grep'
-alias yt="subl '$HOME/Google Drive/My Drive/YouTube/Scripts/'"
+
+# YouTube Scripts - cross-platform
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    alias yt="subl '$HOME/Google Drive/My Drive/YouTube/Scripts/'"
+    alias oyt="open '$HOME/Google Drive/My Drive/YouTube/Scripts/'"
+else
+    alias yt="code '$HOME/Google Drive/My Drive/YouTube/Scripts/'"
+    alias oyt="xdg-open '$HOME/Google Drive/My Drive/YouTube/Scripts/'"
+fi
 alias cyt="cd '$HOME/Google Drive/My Drive/YouTube/Scripts/'"
-alias oyt="open '$HOME/Google Drive/My Drive/YouTube/Scripts/'"
+
+
+# =============================================================================
+# LS / COLORS
+# =============================================================================
 
 # Detect which `ls` flavor is in use
-if ls --color >/dev/null 2>&1; then # GNU `ls`
+if ls --color >/dev/null 2>&1; then  # GNU `ls`
     colorflag="--color"
-else # OS X `ls`
+else                                  # macOS `ls`
     colorflag="-G"
 fi
 
-# List all files colorized in long format, including dot files
 alias la="ls -lahF ${colorflag}"
-
-# Always use color output for `ls`
 alias ls="command ls ${colorflag}"
-# For detailed colors on Mac, run 'man ls' and see the LSCOLORS section
+
 export LSCOLORS='Dxexcxdxcxegedabagacad'
 export LS_COLORS='no=00:fi=00:di=04;35:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.gz=01;31:*.bz2=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.avi=01;35:*.fli=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.ogg=01;35:*.mp3=01;35:*.wav=01;35:'
 
-# Always enable colored `grep` output
+
+# =============================================================================
+# GREP
+# =============================================================================
+
 # Note: `GREP_OPTIONS="--color=auto"` is deprecated, hence the alias usage.
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
-# Get OS X Software Updates
-alias update_system='sudo softwareupdate -i -a'
 
-# Update/upgrade Homebrew and their installed packages
-alias update_brew='brew update; brew upgrade; brew upgrade --cask; brew cleanup'
+# =============================================================================
+# GIT
+# =============================================================================
 
-# Show/hide hidden files in Finder
-# As of macOS Sierra (10.12) and later, you can simply press Cmd + Shift + . (period) while in Finder to toggle the visibility of hidden files.
-alias show="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
-alias hide="defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder"
+alias g='git'
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gpl='git pull'
+alias gl='git log --oneline --graph --decorate --all'
+alias gd='git diff'
+alias gds='git diff --staged'
+alias gco='git checkout'
+alias gb='git branch'
+alias gm='git merge'
+alias gr='git remote -v'
+
+
+# =============================================================================
+# macOS ONLY
+# =============================================================================
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    alias update_system='sudo softwareupdate -i -a'
+    alias update_brew='brew update; brew upgrade; brew upgrade --cask; brew cleanup'
+
+    # Show/hide hidden files in Finder
+    # (Alternatively: Cmd + Shift + . in Finder on macOS Sierra+)
+    alias show="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
+    alias hide="defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder"
+
+    alias clean="osascript -e 'tell application \"Finder\" to empty the trash' 2>/dev/null; rm -rf ~/Downloads/*"
+
+    # Screencast mode: auto-hides dock/desktop, analog clock, clears trash & downloads
+    alias tut_mode='defaults write com.apple.dock autohide -bool true && killall Dock;
+                   defaults write com.apple.finder CreateDesktop -bool false && killall Finder;
+                   defaults write com.apple.menuextra.clock IsAnalog -bool true && killall SystemUIServer;
+                   rm -rf ~/.Trash/*;
+                   rm -rf ~/Downloads/*'
+
+    alias reg_mode='defaults write com.apple.dock autohide -bool false && killall Dock;
+                   defaults write com.apple.finder CreateDesktop -bool true && killall Finder;
+                   defaults write com.apple.menuextra.clock IsAnalog -bool false && killall SystemUIServer;'
+fi
+
+
+# =============================================================================
+# KUBECTL
+# =============================================================================
 
 alias k='kubectl'
+alias kns='kubens'
+
+# Events & all-namespace wrapper
 alias kge='kubectl get events --sort-by="{.lastTimestamp}"'
-alias kca='f(){ kubectl "$@" --all-namespaces;  unset -f f; }; f'
+alias kca='f(){ kubectl "$@" --all-namespaces; unset -f f; }; f'
+
+# Apply / exec / port-forward / copy
 alias kaf='kubectl apply -f'
 alias keti='kubectl exec -ti'
+alias kpf='kubectl port-forward'
+alias kcp='kubectl cp'
+
+# Config / context
 alias kcuc='kubectl config use-context'
 alias kcsc='kubectl config set-context'
 alias kcdc='kubectl config delete-context'
 alias kccc='kubectl config current-context'
 alias kcgc='kubectl config get-contexts'
+alias kcn='kubectl config set-context $(kubectl config current-context) --namespace'
+
+# Delete
 alias kdel='kubectl delete'
 alias kdelf='kubectl delete -f'
+
+# Pods
 alias kgp='kubectl get pods'
 alias kgpw='kgp --watch'
 alias kgpwide='kgp -o wide'
+alias kgpl='kgp -l'
 alias kep='kubectl edit pods'
 alias kdp='kubectl describe pods'
 alias kdelp='kubectl delete pods'
-alias kgpl='kgp -l'
+
+# Services
 alias kgs='kubectl get svc'
 alias kgsw='kgs --watch'
 alias kgswide='kgs -o wide'
 alias kes='kubectl edit svc'
 alias kds='kubectl describe svc'
 alias kdels='kubectl delete svc'
+
+# Ingress
 alias kgi='kubectl get ingress'
 alias kei='kubectl edit ingress'
 alias kdi='kubectl describe ingress'
 alias kdeli='kubectl delete ingress'
+
+# Namespaces
 alias kgns='kubectl get namespaces'
 alias kens='kubectl edit namespace'
 alias kdns='kubectl describe namespace'
 alias kdelns='kubectl delete namespace'
-alias kcn='kubectl config set-context $(kubectl config current-context) --namespace'
+
+# ConfigMaps
 alias kgcm='kubectl get configmaps'
 alias kecm='kubectl edit configmap'
 alias kdcm='kubectl describe configmap'
 alias kdelcm='kubectl delete configmap'
+
+# Secrets
 alias kgsec='kubectl get secret'
 alias kdsec='kubectl describe secret'
 alias kdelsec='kubectl delete secret'
+
+# Deployments
 alias kgd='kubectl get deployment'
 alias kgdw='kgd --watch'
 alias kgdwide='kgd -o wide'
@@ -90,33 +172,29 @@ alias krsd='kubectl rollout status deployment'
 alias kgrs='kubectl get rs'
 alias krh='kubectl rollout history'
 alias kru='kubectl rollout undo'
-alias kpf="kubectl port-forward"
-alias kga='kubectl get all'
-alias kgaa='kubectl get all --all-namespaces'
-alias kl='kubectl logs'
-alias klf='kubectl logs -f'
-alias kcp='kubectl cp'
+
+# Nodes
 alias kgno='kubectl get nodes'
 alias keno='kubectl edit node'
 alias kdno='kubectl describe node'
 alias kdelno='kubectl delete node'
 
-# To prep before screencasts
-alias tut_mode='defaults write com.apple.dock autohide -bool true && killall Dock;
-               defaults write com.apple.finder CreateDesktop -bool false && killall Finder;
-               defaults write com.apple.menuextra.clock IsAnalog -bool true && killall SystemUIServer;
-               rm -rf ~/.Trash/*;
-               rm -rf ~/Downloads/*'
-alias reg_mode='defaults write com.apple.dock autohide -bool false && killall Dock;
-               defaults write com.apple.finder CreateDesktop -bool true && killall Finder;
-               defaults write com.apple.menuextra.clock IsAnalog -bool false && killall SystemUIServer;'
+# All resources
+alias kga='kubectl get all'
+alias kgaa='kubectl get all --all-namespaces'
 
-alias clean="osascript -e 'tell application \"Finder\" to empty the trash' 2>/dev/null; rm -rf ~/Downloads/*"
+# Logs
+alias kl='kubectl logs'
+alias klf='kubectl logs -f'
 
 
-# Virtual Environments
-alias wipe_env='rm -rf ~/venvs/tutorial; python3 -m venv ~/venvs/tutorial'
+# =============================================================================
+# PYTHON VIRTUAL ENVIRONMENTS
+# =============================================================================
+
 alias venv='source .venv/bin/activate'
+alias wipe_env='rm -rf ~/venvs/tutorial && python3 -m venv ~/venvs/tutorial'
+
 alias dbtenv='source ~/venvs/dbtenv/bin/activate'
 alias tut_env='source ~/venvs/tutorial/bin/activate'
 alias dss_env='source ~/venvs/dss/bin/activate'
@@ -125,43 +203,259 @@ alias sc_env='source ~/venvs/servicecreator/bin/activate'
 alias castor_env='source ~/venvs/castor/bin/activate'
 alias dafenv='source ~/venvs/daf/bin/activate'
 
-# local server aliases
-alias nas="ssh -p 45000 'parikshit_admin@192.168.1.2'"
 
-# tmux sessions
+# =============================================================================
+# LOCAL SERVER
+# =============================================================================
+
+alias nas='ssh nas'
+
+
+# =============================================================================
+# TMUX
+# =============================================================================
+
+# Create or attach/switch to a named session
 t() {
-  # Create session in background if it doesn't exist
   tmux new-session -d -s "$1" 2>/dev/null
-  
   if [ -n "$TMUX" ]; then
-    # If inside tmux: switch to it
     tmux switch-client -t "$1"
   else
-    # If outside tmux: attach to it
     tmux attach-session -t "$1"
   fi
 }
 
-# DSS AWS Environment
-alias dfdev="aws sso login --profile dev-df-admin && export AWS_PROFILE=dev-df-admin && export AWS_REGION=eu-west-1"
-alias dfuat="aws sso login --profile uat-df-admin && export AWS_PROFILE=uat-df-admin && export AWS_REGION=eu-west-1"
-alias dfprod="aws sso login --profile prod-df-admin && export AWS_PROFILE=prod-df-admin && export AWS_REGION=eu-west-1"
-alias dfcicd="aws sso login --profile cicd && export AWS_PROFILE=cicd && export AWS_REGION=eu-west-1"
-alias lsrepo="aws codecommit list-repositories --region eu-west-1 --profile cicd | jq -r '.repositories[] | .repositoryName'"
+# Tab-complete session names for t()
+if [ -n "$BASH_VERSION" ]; then
+    _t_complete() { tmux list-sessions -F '#S' 2>/dev/null; }
+    complete -F _t_complete t
+fi
+# Note: zsh completion for t() can be added manually if needed via compdef
 
-alias eksdev="aws eks --region eu-west-1 update-kubeconfig --name dev-datafactory"
-alias eksuat="aws eks --region eu-west-1 update-kubeconfig --name uat-datafactory"
-alias eksprod="aws eks --region eu-west-1 update-kubeconfig --name prod-datafactory"
-alias pfairflow="kubens airflow && kubectl port-forward services/dev-api-server 5000:8080"
-alias pfuatairflow="kubens airflow && kubectl port-forward services/uat-api-server 5000:8080"
-alias pfprodairflow="kubens airflow && kubectl port-forward services/prod-api-server 5000:8080"
-alias pfredash="kubens redash && kubectl port-forward services/redash 5100:80"
-#alias pfdev="aws ssm start-session --target i-065b5c527a1890cbe --document-name AWS-StartPortForwardingSession --parameters portNumber='5000',localPortNumber='5000'"
-alias pgdev="aws ssm start-session --target i-065b5c527a1890cbe --document-name AWS-StartPortForwardingSessionToRemoteHost  --parameters host='rds-dev-datafactory-instance-1.ciyx0wg9ft4f.eu-west-1.rds.amazonaws.com',portNumber='5432',localPortNumber='5432'"
-alias pgall="dss_env && dfdev && pgdev &"
-alias rsdev="aws ssm start-session --target i-065b5c527a1890cbe --document-name AWS-StartPortForwardingSessionToRemoteHost  --parameters host='rs-dev-datafactory-001.cymikxohtjhl.eu-west-1.redshift.amazonaws.com',portNumber='5439',localPortNumber='5439'"
-alias rsprod="aws ssm start-session --target i-007c3baf00fcdc433 --document-name AWS-StartPortForwardingSessionToRemoteHost  --parameters host='rs-prod-datafactory-001.cn7jv4zmgtoa.eu-west-1.redshift.amazonaws.com',portNumber='5439',localPortNumber='5439'"
 
-alias bsdev="aws ssm start-session --target=i-065b5c527a1890cbe --document-name AWS-StartInteractiveCommand --parameters command='bash -l'"
-alias bsuat="aws ssm start-session --target=i-042d4e5d9c129220d --document-name AWS-StartInteractiveCommand --parameters command='bash -l'"
-alias bsprod="aws ssm start-session --target=i-007c3baf00fcdc433 --document-name AWS-StartInteractiveCommand --parameters command='bash -l'"
+# =============================================================================
+# DSS AWS — SSO + PROFILE SWITCHING
+# =============================================================================
+
+# AWS region
+export DF_AWS_REGION="eu-west-1"
+
+# Helper function to get bastion instance ID from profile
+_df_bastion_instance() {
+    case "$AWS_PROFILE" in
+        dev-df-admin)  echo "i-065b5c527a1890cbe" ;;
+        uat-df-admin)  echo "i-042d4e5d9c129220d" ;;
+        prod-df-admin) echo "i-007c3baf00fcdc433" ;;
+    esac
+}
+
+# Helper function to get RDS endpoint from profile
+_df_rds_endpoint() {
+    case "$AWS_PROFILE" in
+        dev-df-admin)  echo "rds-dev-datafactory-instance-1.ciyx0wg9ft4f.eu-west-1.rds.amazonaws.com" ;;
+        uat-df-admin)  echo "rds-uat-datafactory-instance-1.ciyx0wg9ft4f.eu-west-1.rds.amazonaws.com" ;;
+        prod-df-admin) echo "rds-prod-datafactory-instance-1.ciyx0wg9ft4f.eu-west-1.rds.amazonaws.com" ;;
+    esac
+}
+
+# Helper function to get Redshift endpoint from profile
+_df_redshift_endpoint() {
+    case "$AWS_PROFILE" in
+        dev-df-admin)  echo "rs-dev-datafactory-001.cymikxohtjhl.eu-west-1.redshift.amazonaws.com" ;;
+        uat-df-admin)  echo "rs-uat-datafactory-001.cymikxohtjhl.eu-west-1.redshift.amazonaws.com" ;;
+        prod-df-admin) echo "rs-prod-datafactory-001.cn7jv4zmgtoa.eu-west-1.redshift.amazonaws.com" ;;
+    esac
+}
+
+# Simple profile switching - just export AWS_PROFILE
+# To avoid re-authentication, update your ~/.aws/config to use a shared sso-session
+dfenv() {
+    local env="$1"
+    local profile
+
+    case "$env" in
+        dev)  profile="dev-df-admin"  ;;
+        uat)  profile="uat-df-admin"  ;;
+        prod) profile="prod-df-admin" ;;
+        cicd) profile="cicd"          ;;
+        *)
+            echo "Usage: dfenv <dev|uat|prod|cicd>"
+            return 1
+            ;;
+    esac
+
+    # Check if SSO session is valid
+    if ! aws sts get-caller-identity --profile "$profile" >/dev/null 2>&1; then
+        echo "⚠ SSO session expired or invalid. Running dflogin..."
+        aws sso login --sso-session df-shared || aws sso login --profile "$profile"
+
+        # Verify login was successful
+        if ! aws sts get-caller-identity --profile "$profile" >/dev/null 2>&1; then
+            echo "✗ Login failed. Please check your SSO configuration."
+            return 1
+        fi
+    fi
+
+    export AWS_PROFILE="$profile"
+    export AWS_REGION="$DF_AWS_REGION"
+    echo "✓ AWS_PROFILE=$AWS_PROFILE  AWS_REGION=$AWS_REGION"
+}
+
+# Login once, then switch profiles freely
+alias dflogin='aws sso login --sso-session df-shared || aws sso login --profile dev-df-admin'
+alias dfdev='dfenv dev'
+alias dfuat='dfenv uat'
+alias dfprod='dfenv prod'
+alias dfcicd='dfenv cicd'
+
+# Show current AWS profile
+alias awsprofile='echo ${AWS_PROFILE:-not set}'
+
+# List CodeCommit repos (uses current profile/region)
+alias lsrepo="aws codecommit list-repositories --region $DF_AWS_REGION | jq -r '.repositories[] | .repositoryName'"
+
+
+# =============================================================================
+# DSS EKS — KUBECONFIG SWITCHING
+# =============================================================================
+
+# Derives the cluster name from AWS_PROFILE set by dfenv, then updates
+# kubeconfig. No argument needed — just run dfenv first, then eks.
+#
+# Profile → cluster mapping:
+#   dev-df-admin  → dev-datafactory
+#   uat-df-admin  → uat-datafactory
+#   prod-df-admin → prod-datafactory
+#
+# Usage:
+#   dfdev && eks        # switch AWS profile, then sync kubeconfig
+#   dfprod && eks       # same for prod
+eks() {
+    if [[ -z "$AWS_PROFILE" ]]; then
+        echo "⚠ AWS_PROFILE is not set. Run 'dfdev/dfuat/dfprod' first."
+        return 1
+    fi
+
+    local cluster
+
+    case "$AWS_PROFILE" in
+        dev-df-admin)  cluster="dev-datafactory"  ;;
+        uat-df-admin)  cluster="uat-datafactory"  ;;
+        prod-df-admin) cluster="prod-datafactory" ;;
+        *)
+            echo "⚠ No EKS cluster mapped for AWS_PROFILE='$AWS_PROFILE'."
+            echo "  Known profiles: dev-df-admin | uat-df-admin | prod-df-admin"
+            return 1
+            ;;
+    esac
+
+    echo "→ Updating kubeconfig for '$cluster' (profile: $AWS_PROFILE)..."
+    aws eks --region "$DF_AWS_REGION" update-kubeconfig --name "$cluster"
+    echo "✓ kubectl context → $cluster"
+}
+
+
+
+# =============================================================================
+# DSS PORT FORWARDS — AIRFLOW / REDASH / RDS / REDSHIFT
+# =============================================================================
+
+# Unalias old port-forward aliases (from previous version)
+unalias pfairflow 2>/dev/null
+
+# Airflow — local port 5000 → service port 8080
+# Auto-updates EKS context based on active AWS_PROFILE. Just run dfdev/dfuat/dfprod first.
+pfairflow() {
+    # Auto-update EKS context (includes AWS_PROFILE check)
+    eks || return 1
+
+    local svc
+
+    case "$AWS_PROFILE" in
+        dev-df-admin)  svc="dev-api-server"  ;;
+        uat-df-admin)  svc="uat-api-server"  ;;
+        prod-df-admin) svc="prod-api-server" ;;
+    esac
+
+    echo "→ Port-forwarding to $svc..."
+    kubens airflow && kubectl port-forward "services/$svc" 5000:8080
+}
+
+# Redash — auto-updates EKS context before port-forward
+pfredash() {
+    # Auto-update EKS context (includes AWS_PROFILE check)
+    eks || return 1
+
+    echo "→ Port-forwarding to Redash..."
+    kubens redash && kubectl port-forward services/redash 5100:80
+}
+
+# Port-forward checks
+alias pgcheck='lsof -i :5432'
+alias rscheck='lsof -i :5439'
+
+# =============================================================================
+# DSS SSM TUNNELS — BASTION / RDS / REDSHIFT
+# =============================================================================
+
+# Bastion shell session - derives instance from active AWS_PROFILE
+bs() {
+    if [[ -z "$AWS_PROFILE" ]]; then
+        echo "⚠ AWS_PROFILE is not set. Run 'dfdev/dfuat/dfprod' first."
+        return 1
+    fi
+
+    local instance=$(_df_bastion_instance)
+    if [[ -z "$instance" ]]; then
+        echo "⚠ No bastion instance mapped for AWS_PROFILE='$AWS_PROFILE'."
+        return 1
+    fi
+
+    echo "→ Connecting to bastion ($instance)..."
+    aws ssm start-session --target="$instance" --document-name AWS-StartInteractiveCommand --parameters command='bash -l'
+}
+
+# RDS (Postgres) tunnel via bastion → localhost:5432
+pgfwd() {
+    if [[ -z "$AWS_PROFILE" ]]; then
+        echo "⚠ AWS_PROFILE is not set. Run 'dfdev/dfuat/dfprod' first."
+        return 1
+    fi
+
+    local instance=$(_df_bastion_instance)
+    local endpoint=$(_df_rds_endpoint)
+
+    if [[ -z "$instance" || -z "$endpoint" ]]; then
+        echo "⚠ No RDS configuration for AWS_PROFILE='$AWS_PROFILE'."
+        return 1
+    fi
+
+    echo "→ Port-forwarding RDS via bastion..."
+    aws ssm start-session \
+        --target "$instance" \
+        --document-name AWS-StartPortForwardingSessionToRemoteHost \
+        --parameters host="$endpoint",portNumber='5432',localPortNumber='5432'
+}
+
+# Redshift tunnel via bastion → localhost:5439
+rsfwd() {
+    if [[ -z "$AWS_PROFILE" ]]; then
+        echo "⚠ AWS_PROFILE is not set. Run 'dfdev/dfuat/dfprod' first."
+        return 1
+    fi
+
+    local instance=$(_df_bastion_instance)
+    local endpoint=$(_df_redshift_endpoint)
+
+    if [[ -z "$instance" || -z "$endpoint" ]]; then
+        echo "⚠ No Redshift configuration for AWS_PROFILE='$AWS_PROFILE'."
+        return 1
+    fi
+
+    echo "→ Port-forwarding Redshift via bastion..."
+    aws ssm start-session \
+        --target "$instance" \
+        --document-name AWS-StartPortForwardingSessionToRemoteHost \
+        --parameters host="$endpoint",portNumber='5439',localPortNumber='5439'
+}
+
