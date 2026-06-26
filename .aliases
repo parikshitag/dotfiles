@@ -267,8 +267,8 @@ _df_redshift_endpoint() {
     esac
 }
 
-# Simple profile switching - just export AWS_PROFILE
-# To avoid re-authentication, update your ~/.aws/config to use a shared sso-session
+# AWS Profile Switching
+# Auto-validates SSO session and logs in if expired
 dfenv() {
     local env="$1"
     local profile
@@ -301,7 +301,7 @@ dfenv() {
     echo "✓ AWS_PROFILE=$AWS_PROFILE  AWS_REGION=$AWS_REGION"
 }
 
-# Login once, then switch profiles freely
+# Profile switching aliases
 alias dflogin='aws sso login --sso-session df-shared || aws sso login --profile dev-df-admin'
 alias dfdev='dfenv dev'
 alias dfuat='dfenv uat'
@@ -361,7 +361,7 @@ eks() {
 # =============================================================================
 
 # Unalias old port-forward aliases (from previous version)
-unalias pfairflow 2>/dev/null
+unalias pfairflow pfredash 2>/dev/null
 
 # Airflow — environment-specific ports (dev:5000, uat:5001, prod:5002)
 # Auto-updates EKS context based on active AWS_PROFILE. Just run dfdev/dfuat/dfprod first.
